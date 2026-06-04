@@ -83,7 +83,9 @@ export function renderConnectBar(state, actions) {
       value: f.password,
       onInput: (e) => (f.password = e.target.value)
     }),
-    el('button', { class: 'btn btn-primary', type: 'submit' }, 'Connect'),
+    state.connecting
+      ? el('button', { class: 'btn btn-primary', type: 'button', disabled: true }, el('span', { class: 'spinner' }), 'Connecting…')
+      : el('button', { class: 'btn btn-primary', type: 'submit' }, 'Connect'),
     el('button', { class: 'btn', type: 'button', onClick: actions.openSiteManager }, 'Servers')
   )
   bar.append(form)

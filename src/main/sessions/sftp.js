@@ -69,6 +69,14 @@ export class SftpSession {
     })
   }
 
+  async uploadDir(localDir, remoteDir) {
+    await this.client.uploadDir(localDir, remoteDir)
+  }
+
+  async downloadDir(remoteDir, localDir) {
+    await this.client.downloadDir(remoteDir, localDir)
+  }
+
   async mkdir(remotePath) {
     await this.client.mkdir(remotePath, false)
   }

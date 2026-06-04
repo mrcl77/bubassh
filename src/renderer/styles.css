@@ -42,6 +42,29 @@ body {
 .hidden {
   display: none !important;
 }
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: -2px;
+  margin-right: 7px;
+}
+.spinner-lg {
+  width: 22px;
+  height: 22px;
+  border-width: 3px;
+  margin: 0 0 12px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .spacer {
   flex: 1 1 auto;
 }
@@ -363,7 +386,7 @@ select.input {
   flex: none;
   display: flex;
   gap: 2px;
-  opacity: 0;
+  opacity: 0.5;
   transition: opacity 0.12s;
 }
 .prow:hover .prow-actions {

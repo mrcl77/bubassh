@@ -62,9 +62,11 @@ function row(entry, side, state, actions) {
 
   const acts = el('div', { class: 'prow-actions' })
   if (isLocal) {
-    if (!entry.isDir) acts.append(iconBtn('→', 'Upload to server', () => actions.uploadLocal([entry.path]), 'accent'))
+    // pliki i foldery -> wyślij do bieżącego katalogu zdalnego
+    acts.append(iconBtn('→', 'Send to the server', () => actions.uploadLocal([entry.path]), 'accent'))
   } else {
-    if (!entry.isDir) acts.append(iconBtn('⬇', 'Download', () => actions.downloadRemote([entry]), 'accent'))
+    // pliki i foldery -> pobierz do bieżącego katalogu lokalnego
+    acts.append(iconBtn('←', 'Download to this folder', () => actions.downloadRemote([entry]), 'accent'))
     acts.append(iconBtn('✎', 'Rename', () => actions.renameRemote(entry)))
     acts.append(iconBtn('🗑', 'Delete', () => actions.removeRemote(entry), 'danger'))
   }
@@ -114,7 +116,7 @@ function paneHead(side, state, actions) {
   head.append(el('span', { class: 'pane-label' }, isLocal ? 'LOCAL' : 'REMOTE'))
 
   if (!isLocal && !state.connected) {
-    head.append(el('span', { class: 'pane-path muted' }, '— not connected'))
+    head.append(el('span', { class: 'pane-path muted' }, state.connecting ? '— connecting…' : '— not connected'))
     return head
   }
 
@@ -147,9 +149,11 @@ function renderPane(side, state, actions) {
   const list = el('div', { class: 'pane-list' })
 
   if (!isLocal && !state.connected) {
-    list.append(
-      el('div', { class: 'empty' }, 'Connect to a server', el('br'), 'to browse and transfer files.')
-    )
+    if (state.connecting) {
+      list.append(el('div', { class: 'empty' }, el('span', { class: 'spinner spinner-lg' }), el('br'), 'Connecting…'))
+    } else {
+      list.append(el('div', { class: 'empty' }, 'Connect to a server', el('br'), 'to browse and transfer files.'))
+    }
     root.append(list)
     return
   }

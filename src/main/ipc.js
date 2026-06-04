@@ -1,5 +1,6 @@
 import { ipcMain, dialog } from 'electron'
 import path from 'node:path'
+import fs from 'node:fs'
 import { createSession } from './sessions/index.js'
 import { TransferManager } from './transfers.js'
 import { listLocal } from './local.js'
@@ -94,7 +95,13 @@ export function registerIpc(mainWindow) {
     if (!session) throw new Error('Not connected')
     const items = (paths || []).map((localPath) => {
       const name = path.basename(localPath)
-      return { direction: 'upload', localPath, remotePath: remoteJoin(remoteDir, name), name }
+      let isDir = false
+      try {
+        isDir = fs.statSync(localPath).isDirectory()
+      } catch {
+        /* brak dostępu — potraktuj jak plik */
+      }
+      return { direction: 'upload', localPath, remotePath: remoteJoin(remoteDir, name), name, isDir }
     })
     return transfers.enqueue(items)
   })
@@ -106,7 +113,8 @@ export function registerIpc(mainWindow) {
       remotePath: it.remotePath,
       localPath: path.join(localDir, it.name),
       name: it.name,
-      total: it.size || 0
+      total: it.size || 0,
+      isDir: !!it.isDir
     }))
     return transfers.enqueue(tasks)
   })

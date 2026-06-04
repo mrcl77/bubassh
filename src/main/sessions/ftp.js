@@ -62,6 +62,24 @@ export class FtpSession {
     }
   }
 
+  async uploadDir(localDir, remoteDir, onProgress) {
+    this.client.trackProgress((info) => onProgress(info.bytes))
+    try {
+      await this.client.uploadFromDir(localDir, remoteDir)
+    } finally {
+      this.client.trackProgress()
+    }
+  }
+
+  async downloadDir(remoteDir, localDir, onProgress) {
+    this.client.trackProgress((info) => onProgress(info.bytes))
+    try {
+      await this.client.downloadToDir(localDir, remoteDir)
+    } finally {
+      this.client.trackProgress()
+    }
+  }
+
   async mkdir(remotePath) {
     // Tworzymy pojedynczy katalog (rodzic musi istnieć).
     await this.client.send('MKD ' + remotePath)

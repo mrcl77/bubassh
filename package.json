@@ -1,6 +1,6 @@
 {
   "name": "bubassh",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BubaSSH — a minimalist dark FTP/SFTP client for Linux, Windows and macOS.",
   "author": "mrcl77",
   "license": "MIT",

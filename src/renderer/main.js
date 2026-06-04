@@ -7,6 +7,7 @@ import { toast } from './dom.js'
 
 const state = {
   connected: false,
+  connecting: false,
   info: null,
   remote: { cwd: '/', entries: [], loading: false, highlight: new Set() },
   local: { cwd: '', parent: null, entries: [], loading: true, highlight: new Set() },
@@ -26,7 +27,9 @@ function renderAll() {
 
 /* ---------- Zdalne ---------- */
 async function connect(payload) {
-  state.remote.loading = true
+  if (state.connecting) return
+  state.connecting = true
+  renderConnectBar(state, actions)
   renderPanes(state, actions)
   try {
     const res = await window.api.connect(payload)
@@ -40,7 +43,7 @@ async function connect(payload) {
     state.connected = false
     toast('Connection error: ' + msg(err), 'error')
   } finally {
-    state.remote.loading = false
+    state.connecting = false
     renderAll()
   }
 }
@@ -164,7 +167,8 @@ const actions = {
     const items = entries.map((e) => ({
       remotePath: joinPath(state.remote.cwd, e.name),
       name: e.name,
-      size: e.size
+      size: e.size,
+      isDir: e.isDir
     }))
     return downloadItems(items)
   },
@@ -271,22 +275,37 @@ function hasType(e, t) {
   return e.dataTransfer && [...e.dataTransfer.types].includes(t)
 }
 
-remotePane.addEventListener('dragover', (e) => {
+const onRemoteDragOver = (e) => {
   if (state.connected && (hasType(e, 'Files') || hasType(e, 'application/x-bubassh-local'))) {
     e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
     remotePane.classList.add('drag-over')
   }
-})
+}
+remotePane.addEventListener('dragenter', onRemoteDragOver)
+remotePane.addEventListener('dragover', onRemoteDragOver)
 remotePane.addEventListener('dragleave', (e) => {
   if (!remotePane.contains(e.relatedTarget)) remotePane.classList.remove('drag-over')
 })
 remotePane.addEventListener('drop', (e) => {
   e.preventDefault()
   remotePane.classList.remove('drag-over')
-  if (!state.connected) return
+  if (!state.connected) {
+    toast('Connect to a server first', 'error')
+    return
+  }
   const files = [...(e.dataTransfer?.files || [])]
   if (files.length) {
-    const paths = files.map((f) => window.api.getPathForFile(f)).filter(Boolean)
+    let paths = []
+    try {
+      paths = files.map((f) => window.api.getPathForFile(f)).filter(Boolean)
+    } catch {
+      /* ignore */
+    }
+    if (!paths.length) {
+      toast('Could not read the dropped files — use the → button to upload', 'error')
+      return
+    }
     uploadPaths(paths)
     return
   }
@@ -300,12 +319,15 @@ remotePane.addEventListener('drop', (e) => {
   }
 })
 
-localPane.addEventListener('dragover', (e) => {
+const onLocalDragOver = (e) => {
   if (hasType(e, 'application/x-bubassh-remote')) {
     e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
     localPane.classList.add('drag-over')
   }
-})
+}
+localPane.addEventListener('dragenter', onLocalDragOver)
+localPane.addEventListener('dragover', onLocalDragOver)
 localPane.addEventListener('dragleave', (e) => {
   if (!localPane.contains(e.relatedTarget)) localPane.classList.remove('drag-over')
 })
