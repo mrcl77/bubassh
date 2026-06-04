@@ -1,0 +1,17 @@
+node_modules/
+out/
+release/
+dist/
+*.log
+.DS_Store
+
+# Generowane z resources/icon.svg przez `npm run icons`
+build/icon.png
+build/icon.ico
+build/icon.icns
+
+# Tymczasowe bundlie testów (sprzątane automatycznie)
+.babyssh-*
+
+# Zrzuty źródłowe (do README używamy docs/screenshot.png)
+*.heic
