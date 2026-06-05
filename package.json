@@ -1,6 +1,6 @@
 {
   "name": "bubassh",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "BubaSSH — a minimalist dark FTP/SFTP client for Linux, Windows and macOS.",
   "author": "mrcl77",
   "license": "MIT",
@@ -16,6 +16,7 @@
     "dist:linux": "npm run icons && npm run build && electron-builder --linux --publish never",
     "test:ftp": "node scripts/test-ftp.mjs",
     "test:sftp": "node scripts/test-sftp.mjs",
+    "test:dir": "node scripts/test-dir-transfer.mjs",
     "test:profiles": "node scripts/test-profiles.mjs"
   },
   "dependencies": {

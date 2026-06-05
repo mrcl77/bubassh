@@ -62,21 +62,14 @@ export class FtpSession {
     }
   }
 
-  async uploadDir(localDir, remoteDir, onProgress) {
-    this.client.trackProgress((info) => onProgress(info.bytes))
+  // Tworzy pojedynczy katalog; ignoruje „już istnieje”. Rekurencyjny transfer
+  // folderów (TransferManager) tworzy katalogi od najpłytszych, więc rodzic
+  // zawsze istnieje. Nie używamy `ensureDir` z basic-ftp, bo zmienia ono cwd.
+  async ensureDir(remotePath) {
     try {
-      await this.client.uploadFromDir(localDir, remoteDir)
-    } finally {
-      this.client.trackProgress()
-    }
-  }
-
-  async downloadDir(remoteDir, localDir, onProgress) {
-    this.client.trackProgress((info) => onProgress(info.bytes))
-    try {
-      await this.client.downloadToDir(localDir, remoteDir)
-    } finally {
-      this.client.trackProgress()
+      await this.client.send('MKD ' + remotePath)
+    } catch {
+      /* już istnieje */
     }
   }
 

@@ -83,21 +83,23 @@ function row(entry, side, state, actions) {
     acts
   )
 
-  // Przeciąganie plików między panelami (foldery pomijamy — brak rekursji w v1).
-  if (!entry.isDir) {
-    r.draggable = true
-    r.addEventListener('dragstart', (e) => {
-      if (isLocal) {
-        e.dataTransfer.setData('application/x-bubassh-local', JSON.stringify([entry.path]))
-      } else {
-        e.dataTransfer.setData(
-          'application/x-bubassh-remote',
-          JSON.stringify([{ remotePath: joinPath(state.remote.cwd, entry.name), name: entry.name, size: entry.size }])
-        )
-      }
-      e.dataTransfer.effectAllowed = 'copy'
-    })
-  }
+  // Przeciąganie między panelami — pliki i foldery (transfer rekurencyjny).
+  r.draggable = true
+  r.addEventListener('dragstart', (e) => {
+    r.classList.add('dragging')
+    if (isLocal) {
+      e.dataTransfer.setData('application/x-bubassh-local', JSON.stringify([entry.path]))
+    } else {
+      e.dataTransfer.setData(
+        'application/x-bubassh-remote',
+        JSON.stringify([
+          { remotePath: joinPath(state.remote.cwd, entry.name), name: entry.name, size: entry.size, isDir: entry.isDir }
+        ])
+      )
+    }
+    e.dataTransfer.effectAllowed = 'copy'
+  })
+  r.addEventListener('dragend', () => r.classList.remove('dragging'))
   return r
 }
 

@@ -69,12 +69,14 @@ export class SftpSession {
     })
   }
 
-  async uploadDir(localDir, remoteDir) {
-    await this.client.uploadDir(localDir, remoteDir)
-  }
-
-  async downloadDir(remoteDir, localDir) {
-    await this.client.downloadDir(remoteDir, localDir)
+  // Tworzy katalog (z rodzicami); ignoruje „już istnieje”. Używane przez
+  // rekurencyjny transfer folderów w TransferManager.
+  async ensureDir(remotePath) {
+    try {
+      await this.client.mkdir(remotePath, true)
+    } catch {
+      /* już istnieje */
+    }
   }
 
   async mkdir(remotePath) {
